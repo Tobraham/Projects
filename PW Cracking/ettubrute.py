@@ -5,7 +5,7 @@
 #   CU Boulder                                                                #
 #   TCP - Digital Forensics                                                   #
 #                                                                             #
-# Takes an MD5 hashed password of up to <maxPassLength> characters and        #
+# Takes an MD% hashed password of up to maxPassLength characters and          #
 # brute forces the value from a string library of ascii characters.           #
 #                                                                             #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -17,8 +17,6 @@
 # ⬇ ⬇ ⬇ ⬇ ⬇ ⬇ ⬇ ⬇
 maxPassLength = 6
 
-
-#import getpass                      # For accepting hidden user input
 import hashlib                      # For calculating md5 hashes of passwords
 import itertools                    # For looping through password values
 import random                       # For randomizing our test library
@@ -272,3 +270,5 @@ if __name__ == "__main__":
 
     # Keep the window from closing instantly
     userPause()
+    
+    # Fini.
