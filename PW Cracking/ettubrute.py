@@ -5,7 +5,7 @@
 #   CU Boulder                                                                #
 #   TCP - Digital Forensics                                                   #
 #                                                                             #
-# Takes a hidden user input value of up to maxPassLength characters and       #
+# Takes an MD% hashed password of up to maxPassLength characters and          #
 # brute forces the value from a string library of ascii characters.           #
 #                                                                             #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -18,7 +18,8 @@
 maxPassLength = 6
 
 
-import getpass                      # For accepting hidden user input
+#import getpass                      # For accepting hidden user input
+import hashlib                      # For calculating md5 hashes of passwords
 import itertools                    # For looping through password values
 import random                       # For randomizing our test library
 import string                       # For accessing string ascii values, digits and punctuation
@@ -26,6 +27,8 @@ import sys                          # For exiting the app on completion.
 import time                         # For calculating program execution time
 from   math import floor            # "     "           "       "       "
 from   os   import system, name     # For determing which OS user is using to execute certain commands
+import winsound                     # For notifing user when pass has been cracked
+
 
 charCounts  = []
 library     = []
@@ -59,8 +62,8 @@ def main():
     # Create our master library string (abcdABCD1234><:... etc). 
     library = buildLibrary()
 
-    # Request user's password
-    pw         = getPass()
+    # Request user's hashed password
+    pw      = getPass()
 
     # I found that by shuffling the master comparison string I can sometimes increase 
     # the speed at which a match is found. For example if my library string is always 
@@ -73,29 +76,37 @@ def main():
     random.shuffle(library)
 
     # Loop until we have found a matching password
+    processingCount = 0
     while passFound == False:
         testPW  = buildTestPW()
+        m = hashlib.md5()
+        m.update(testPW.encode('utf_8'))
+        hashedPass = m.hexdigest()
         # If the test pass matches the user's pass, we'll print the 
         # results and exit the application
-        if testPW == pw:
+        if hashedPass == pw:
             passFound = True
-            clear()
-            print(f'{bcolors.BOLD}{bcolors.PASS_RESULT}\nF O U N D  I T !\n- - - - - - - - ')
-            print(f"{bcolors.BOLD}{bcolors.PASS_RESULT}      {testPW}\n\n{bcolors.NORMAL}")
-            finalLibraryString = ''
-            for i in library:
-                finalLibraryString  = finalLibraryString + i
-            print(f"The test library sequence used for this round was: \n   {bcolors.YELLOW}{finalLibraryString}\n\n{bcolors.NORMAL}")
-            endTime = int(time.time())
-            calculateExecutionTime(startTime, endTime, testedCombos)
+            printResults(startTime, testedCombos, testPW)
         else:
             # Update the character counters and try again on the next loop iteration.
             charCounts[0] = incrementCount(0)
             testedCombos += 1
             
-            if testedCombos%150000 == 0:
+            # Dispay spinners while cracking pw so user knows we're still alive
+            if testedCombos%25000 == 0:
+                processingCount += 1
+                if processingCount == 4:
+                    processingCount = 0
                 clear()
-                print(testPW)
+                if processingCount == 0:
+                    print("└ └ └ └ └ └ └")
+                elif processingCount  == 1:
+                    print("┘ ┘ ┘ ┘ ┘ ┘ ┘")
+                elif processingCount == 2:
+                    print("┐ ┐ ┐ ┐ ┐ ┐ ┐")
+                else:
+                    print("┌ ┌ ┌ ┌ ┌ ┌ ┌")    
+                
 
 def buildTestPW():
     # Concatenates a test password based on the count values in each character space
@@ -133,25 +144,33 @@ def getPass():
     # the allowed characters as defined in the 'library' string.
 
     clear()
-    global library
     passlength = 0
     validates = False
     pw = ''
+    md5library = []
+
+    for x in string.ascii_lowercase:
+        md5library.append(x)
+    for x in string.digits:
+        md5library.append(x)
+    md5String = ''
+    for i in md5library:
+        md5String += i
     
     # Loop until password is the correct length
-    while ((passlength < 1 or passlength > maxPassLength) or validates == False):
-        if passlength < 1 or passlength > maxPassLength:
-            print(f"Pass must be between 1 and {maxPassLength} characters in length")
+    while ((passlength != 32) or validates == False):
+        if passlength != 32:
+            print(f"Hashed pass must be 32 alphanumeric characters in length")
         if validates == False:
-            print (f"Pass can only contain these characters: {libraryString}")
-        pw = getpass.getpass("What is your password?")
+            print (f"Pass can only contain these characters: {md5String}")
+        pw = input("What is the hashed password?\n")
         passlength = len(pw)
 
-        # Validate all characters in the password to ensuret hey are allowed.
+        # Validate all characters in the password to ensure they are allowed.
         if passlength > 0:
             illegalCharacters = False
-            for i in pw:
-                if (i in library) == False:
+            for i in pw.lower():
+                if (i in md5library) == False:
                     illegalCharacters = True
                     clear()
                     print(f"There seems to be an illegal character ({i}). Please try again.")
@@ -160,7 +179,7 @@ def getPass():
                 validates = True
         else:
             clear()
-    return pw
+    return pw.lower()
 
 def clear():
     # Quick little function to clear the terminal window to keep the output clean.
@@ -228,6 +247,18 @@ def buildLibrary():
     # Return the library list
     return library
 
+def printResults(startTime, testedCombos, testPW):
+    clear()
+    winsound.Beep(666, 666)
+
+    print(f'{bcolors.BOLD}{bcolors.PASS_RESULT}\nF O U N D  I T !\n- - - - - - - - ')
+    print(f"{bcolors.BOLD}{bcolors.PASS_RESULT}      {testPW}\n\n{bcolors.NORMAL}")
+    finalLibraryString = ''
+    for i in library:
+        finalLibraryString  = finalLibraryString + i
+    print(f"The test library sequence used for this round was: \n   {bcolors.YELLOW}{finalLibraryString}\n\n{bcolors.NORMAL}")
+    endTime = int(time.time())
+    calculateExecutionTime(startTime, endTime, testedCombos)
 def userPause(message='Hit any key to continue...'):
     # Simple functions acts as a breakpoint on screen.
     input(message)
