@@ -5,7 +5,7 @@
 #   CU Boulder                                                                #
 #   TCP - Digital Forensics                                                   #
 #                                                                             #
-# Takes an MD% hashed password of up to maxPassLength characters and          #
+# Takes an MD5 hashed password of up to <maxPassLength> characters and        #
 # brute forces the value from a string library of ascii characters.           #
 #                                                                             #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
