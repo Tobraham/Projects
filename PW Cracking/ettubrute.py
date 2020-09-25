@@ -45,28 +45,26 @@ maxPassLength = 6   # Set to 6 for this project but could be much larger in real
 #                                                                                           #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-#                                                                                                                       #
-#   Usage Examples:                                                                                                     #
-#   1 - Brute force MD5 hash sent directly from command line:                                                           #
-#        ettubrute 3c086f596b4aee58e1d71b3626fefc87                                                                     #
-#                                                                                                                       #
-#  2 - Dictionary crack an MD5 hash sent directly via command line:                                                     #
-#        ettubrute 3c086f596b4aee58e1d71b3626fefc87 -d 'C:\Users\General\Documents\my_wordlist_file.txt'                #
-#                                                                                                                       #
-#   3 - Brute force MD5 hash from a text file directly from command line:                                               #
-#        ettubrute 'C:\Users\General\Documents\my_hash_file.txt'                                                        #
-#                                                                                                                       #
-#   4 - Dictionary crack an MD5 hash contained in a text file                                                           #
-#        ettubrute 'my_hash_file.txt' -d 'dictionary.txt'                                                               #
-#                                                                                                                       #
-#   5 - Dictionary crack with some mangling rules applied (capital permuitations and reversing the dictionary word)     #
-#        ettubrute 'my_hash_file.txt' -d 'dictionary.txt' -m='Cr'                                                       #
-#                                                                                                                       #
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
-
-
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+#                                                                                           #
+#   Usage Examples:                                                                         #
+#   1 - Brute force MD5 hash sent directly from command line:                               #
+#        ettubrute 3c086f596b4aee58e1d71b3626fefc87                                         #
+#                                                                                           #
+#  2 - Dictionary crack an MD5 hash sent directly via command line:                         #
+#        ettubrute 3c086f596b4aee58e1d71b3626fefc87 -d 'my_wordlist_file.txt'               #
+#                                                                                           #
+#   3 - Brute force MD5 hash from a text file directly from command line:                   #
+#        ettubrute 'C:\Users\General\Documents\my_hash_file.txt'                            #
+#                                                                                           #
+#   4 - Dictionary crack an MD5 hash contained in a text file                               #
+#        ettubrute 'my_hash_file.txt' -d 'dictionary.txt'                                   #
+#                                                                                           #
+#   5 - Dictionary crack with some mangling rules applied (capital permuitations and        #
+#           reversing the dictionary word)                                                  #
+#        ettubrute 'my_hash_file.txt' -d 'dictionary.txt' -m='Cr'                           #
+#                                                                                           #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 from math import floor          # For calculating program execution time
 from os   import name           # For determing OS name to play beep notification
@@ -86,7 +84,7 @@ startTime           = 0
 endTime             = 0
 testedCombinations  = 0
 manglerRules        = {
-    'cap_ends'      : False,
+    'cap_ends'  : False,
     'capall'    : False,
     'duplicate' : False,
     'cap_dupe'  : False,
@@ -688,6 +686,10 @@ def mangle_years(testPW):
         permutations.append(testPW + y)
 
     return permutations
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# General functions
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 def clearTerminal():
     # Quick little function to clear the terminal window to keep the output clean.
