@@ -10,18 +10,17 @@ maxPassLength = 6   # Set to 6 for this project but could be much larger in real
 #   CU Boulder                                                                              #
 #   TCP - Digital Forensics                                                                 #
 #                                                                                           #
-#   Crack an MD5-hashed password. Defaults to a brute force method unless                   #
-#   you supply a wordlist, then it will default to a dictionary attack.                     #
-#   There are a few mangler rules set up by adding the -m='' flag.                          #
-#       Example: -m='c' iterates through the dictionary and capitalizes                     #
-#       the first letter of the dictionary word.                                            #
+# Crack an MD5-hashed password. Defaults to a brute force method unless you supply a        #
+# wordlist, then it will default to a dictionary attack. There are a few mangler rules set  #
+# up by adding the -m='' flag. Ex.: -m='c' iterates through the dictionary and capitalizes  #
+# the first letter.                                                                         #
 #                                                                                           #
-#   usage: >>>py ettubrute [-h] [-d D] pw                                                   #
+#   usage: ettubrute [-h] [-d D] [-m M] pw                                                  #
 #                                                                                           #
-#     positional arguments:                                                                 #
-#       pw = an md5 hash string -OR- /path/to/md5hash_file                                  #
+#   positional arguments:                                                                   #
+#   pw                   md5 hash string -OR- /path/to/md5hash_file                         #
 #                                                                                           #
-#     optional arguments:                                                                   #
+#   optional arguments:                                                                     #
 #       -h, --help           show this help message and exit                                #
 #       -d D, -dictionary D  [Optional] /path/to/wordlist_file for dictionary-based crack   #
 #       -m M, -mangler M     [Optional] enables wordlist mangling rules.                    #
@@ -61,7 +60,7 @@ maxPassLength = 6   # Set to 6 for this project but could be much larger in real
 #        ettubrute 'my_hash_file.txt' -d 'dictionary.txt'                                   #
 #                                                                                           #
 #   5 - Dictionary crack with some mangling rules applied (capital permuitations and        #
-#           reversing the dictionary word)                                                  #
+#        reversing the dictionary word)                                                  #
 #        ettubrute 'my_hash_file.txt' -d 'dictionary.txt' -m='Cr'                           #
 #                                                                                           #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -283,6 +282,7 @@ def buildLibraryString():
         libraryList.append(x)
     for x in string.digits:
         libraryList.append(x)
+    libraryList.append(' ')
     for x in string.punctuation:
         libraryList.append(x)
 
@@ -332,7 +332,7 @@ def incrementCount(digit):
     # that point I need to exit and go sulk in the corner for about 20 minutes. Otherwise
     # I need to set the counter back to 0 for this digit and increment the next
     # digit by 1 and keep working.
-    if (currentValue + 1 == 0):
+    if (currentValue == -1):
         newValue = currentValue + 1
     elif (currentValue + 1) % max != 0:
         newValue = currentValue + 1
@@ -357,11 +357,6 @@ def crack_Dictionary(crackParams):
     if crackParams.m != None:
         unpackMangleRules(crackParams.m)
 
-    # Display the mangler rules I're about to implement in this crack
-    for key, value in manglerRules.items():
-        if value == True:
-            print(f"{key} -> {value}")
-    userPause()
     # Open wordlist file and iterate through all entries. I always test the raw word from the wordlist
     # without any mangling first. If I don't have match, then I pass that word into the mangler
     # function and test and mangled values for a match.
@@ -373,17 +368,16 @@ def crack_Dictionary(crackParams):
             # words generated from the various rules.
             mangledPWSet = set(getMangledPermutations(testPW))
             for mangledWord in mangledPWSet:
-                #print(mangledWord)                      #           <------------------------------------------ Remove this before submitting
                 testedCombinations += 1
                 # If mangled word matches, stop iteration and print results.
                 if hashAndCompareWord(mangledWord):
                     wordList.close()
                     return mangledWord
 
-            # Dispay iteration count while cracking pw so user knows I'm still working
-            if testedCombinations % 5000000 == 0:
-                clearTerminal()
-                print(f"Combinations tested: {testedCombinations:,d}")
+                # Dispay iteration count while cracking pw so user knows I'm still working
+                if testedCombinations % 1000000 == 0:
+                    clearTerminal()
+                    print(f"Combinations tested: {testedCombinations:,d}")
         # I've exhausted our wordlist and still haven't found a matching hash
         wordList.close()
         return False
